@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ur-PK" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BS Nursing Admission Guide - Interactive SPA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: The application is designed as a guided journey for a student with 83.5% in FSc. It starts with a direct "Reality Check" comparing their score to government college merits via an interactive chart. This immediately sets realistic expectations. The user is then guided to a "Private College Explorer" with city-based filters, making the search for alternatives easy and organized. A "Financial Planner" section provides a realistic budget range and cost breakdown. Finally, a clear, step-by-step "Action Plan" gives the user concrete next steps. This thematic, task-oriented structure is more user-friendly and empowering than a linear report, as it transforms static information into an interactive decision-making tool. -->
+    <!-- Visualization & Content Choices: 
+        1. Government Merit Analysis: Report Info -> 2024 closing merit percentages for 43 govt colleges. Goal -> To visually compare the user's 83.5% score against the high government merits. Viz/Method -> Chart.js Horizontal Bar Chart. Interaction -> A static line shows the user's score, while hovering on bars reveals college-specific merits. Justification -> This instantly and dramatically shows the merit gap, which is more impactful than a table. Library -> Chart.js.
+        2. Private College Directory: Report Info -> List of private colleges by city. Goal -> To allow users to easily find and explore relevant private options. Viz/Method -> A filterable grid of HTML/Tailwind cards. Interaction -> Users click city buttons to filter the college list dynamically. Justification -> This is more interactive and less overwhelming than a long, static list. Library/Method -> Vanilla JS with data attributes.
+        3. Financial Breakdown: Report Info -> Fee structures and other costs. Goal -> To inform about the financial investment required. Viz/Method -> Styled HTML/Tailwind cards and checklists. Interaction -> Static display for clarity and easy comparison. Justification -> Presents financial data in a digestible format. Library/Method -> HTML/Tailwind.
+        4. Action Plan: Report Info -> 5-step strategy. Goal -> To provide a clear, actionable path forward. Viz/Method -> Numbered list/checklist using HTML/Tailwind. Interaction -> Static checklist for easy reference. Justification -> Converts the report's recommendation into a practical tool. Library/Method -> HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Nastaliq Urdu', sans-serif;
+            background-color: #F8F7F4;
+            color: #333333;
+        }
+        .urdu {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            direction: rtl;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover {
+            color: #5E7C7B;
+            border-bottom-color: #5E7C7B;
+        }
+        .active-filter {
+            background-color: #5E7C7B !important;
+            color: #FFFFFF !important;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 600px;
+            max-height: 80vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-[#5E7C7B]">🩺 Nursing Admission Guide</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#reality-check" class="nav-link text-gray-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent urdu">حقیقت جانیں</a>
+                        <a href="#private-explorer" class="nav-link text-gray-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent urdu">نجی ادارے تلاش کریں</a>
+                        <a href="#financial-plan" class="nav-link text-gray-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent urdu">مالی منصوبہ</a>
+                        <a href="#action-plan" class="nav-link text-gray-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent urdu">اگلا قدم</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-[#5E7C7B] urdu">BS نرسنگ میں داخلہ: آپ کا ذاتی روڈ میپ</h1>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 urdu">آپ کے FSc میں 83.5% نمبر ہیں۔ آئیے دیکھتے ہیں کہ پنجاب میں آپ کے لیے بہترین مواقع کہاں ہیں۔</p>
+                <p class="mt-2 text-gray-500 urdu">یہ گائیڈ آپ کو سرکاری اور نجی شعبوں میں داخلے کے امکانات کو سمجھنے میں مدد دے گی۔</p>
+            </div>
+        </section>
+
+        <section id="reality-check" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold urdu">مرحلہ 1: حقیقت کا جائزہ</h2>
+                    <p class="mt-2 text-lg text-gray-600 urdu">آئیے آپ کے اسکور کا موازنہ پنجاب کے سرکاری نرسنگ کالجوں کے 2024 کے کلوزنگ میرٹ سے کریں۔</p>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                    <div class="grid md:grid-cols-3 gap-8 items-center">
+                        <div class="md:col-span-1 text-center">
+                            <h3 class="text-2xl font-bold urdu mb-4">آپ کا اسکور</h3>
+                            <div class="bg-[#D18C7A]/20 text-[#D18C7A] text-6xl font-bold p-8 rounded-full inline-block">
+                                83.5%
+                            </div>
+                            <div class="mt-6 p-4 bg-amber-100 border-r-4 border-amber-500 text-amber-800 rounded-lg urdu">
+                                <h4 class="font-bold">اہم نکتہ</h4>
+                                <p class="mt-1">گراف میں سرخ لکیر آپ کے اسکور کو ظاہر کرتی ہے۔ اس کا موازنہ ہر کالج کے میرٹ (نیلی بار) سے کریں۔ یہ فرق آپ کو صورتحال سمجھنے میں مدد دے گا۔</p>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <div class="chart-container">
+                                <canvas id="meritChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 text-center p-6 bg-green-50 border-r-4 border-green-600 rounded-lg urdu">
+                        <h3 class="text-2xl font-bold text-green-800">تجزیہ کا خلاصہ</h3>
+                        <p class="mt-2 text-lg text-green-700">ڈیٹا واضح طور پر ظاہر کرتا ہے کہ سرکاری کالجوں کا میرٹ بہت زیادہ ہے، سب سے کم میرٹ بھی 87.66% ہے۔ 83.5% کے اسکور کے ساتھ، سرکاری شعبے میں داخلہ تقریباً ناممکن ہے۔</p>
+                        <p class="mt-3 font-bold text-xl text-green-800">لیکن فکر کی کوئی بات نہیں! نجی شعبے میں بہترین، معیاری ادارے موجود ہیں جو آپ کے کزن کے کیریئر کے خواب کو پورا کر سکتے ہیں۔ آئیے ان مواقع کو تلاش کریں۔</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="private-explorer" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold urdu">مرحلہ 2: بہترین نجی ادارے تلاش کریں</h2>
+                    <p class="mt-2 text-lg text-gray-600 urdu">پنجاب میں بہت سے PNMC سے منظور شدہ، معیاری نجی نرسنگ کالج ہیں۔ شہر کے لحاظ سے فلٹر کریں۔</p>
+                </div>
+                <div class="flex justify-center flex-wrap gap-2 mb-8 urdu" id="city-filters">
+                    <button class="filter-btn active-filter" data-city="all">تمام شہر</button>
+                    <button class="filter-btn" data-city="Lahore">لاہور</button>
+                    <button class="filter-btn" data-city="Multan">ملتان</button>
+                    <button class="filter-btn" data-city="Rawalpindi/Islamabad">راولپنڈی/اسلام آباد</button>
+                    <button class="filter-btn" data-city="Others">دیگر شہر</button>
+                </div>
+                <div id="college-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- College cards will be injected here by JavaScript -->
+                </div>
+            </div>
+        </section>
+        
+        <section id="financial-plan" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold urdu">مرحلہ 3: مالی منصوبہ بندی</h2>
+                    <p class="mt-2 text-lg text-gray-600 urdu">نجی کالجوں کی فیسوں کو سمجھنا ایک باخبر فیصلہ کرنے کے لیے بہت ضروری ہے۔</p>
+                </div>
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4 urdu">متوقع سالانہ فیس کا تخمینہ</h3>
+                        <p class="mb-6 urdu text-gray-600">زیادہ تر معیاری نجی کالجوں کی سالانہ ٹیوشن فیس 200,000 سے 300,000 پاکستانی روپے کے درمیان ہوتی ہے۔ نیچے کچھ اداروں کی تخمینی فیسیں دی گئی ہیں۔</p>
+                        <div class="space-y-4 urdu" id="fees-table">
+                            <!-- Fees data will be injected here -->
+                        </div>
+                         <p class="mt-4 text-sm text-gray-500 urdu">*نوٹ: یہ فیسیں تخمینی ہیں اور تبدیل ہو سکتی ہیں۔ تازہ ترین معلومات کے لیے براہ راست کالج سے رابطہ کریں۔*</p>
+                    </div>
+                    <div class="lg:col-span-1 bg-white p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4 urdu">ٹیوشن فیس کے علاوہ دیگر اخراجات</h3>
+                        <p class="mb-4 urdu text-gray-600">بجٹ بناتے وقت ان اضافی اخراجات کو بھی ذہن میں رکھیں۔</p>
+                        <ul class="space-y-3 urdu text-right">
+                            <li class="flex items-center justify-end"><span class="ml-3">ہاسٹل اور میس کے چارجز</span><span class="text-green-500">✓</span></li>
+                            <li class="flex items-center justify-end"><span class="ml-3">ٹرانسپورٹ فیس</span><span class="text-green-500">✓</span></li>
+                            <li class="flex items-center justify-end"><span class="ml-3">یونیورسٹی رجسٹریشن اور امتحانی فیس</span><span class="text-green-500">✓</span></li>
+                            <li class="flex items-center justify-end"><span class="ml-3">سیکیورٹی ڈپازٹ (واپسی کے قابل)</span><span class="text-green-500">✓</span></li>
+                            <li class="flex items-center justify-end"><span class="ml-3">کتابیں، وردی اور طبی آلات</span><span class="text-green-500">✓</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="action-plan" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold urdu">مرحلہ 4: آپ کا ایکشن پلان</h2>
+                    <p class="mt-2 text-lg text-gray-600 urdu">کامیابی کے امکانات کو بڑھانے کے لیے ان اقدامات پر عمل کریں۔</p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div class="space-y-8 urdu">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#5E7C7B] text-white rounded-full font-bold text-xl">1</div>
+                            <div class="mr-4">
+                                <h4 class="text-xl font-bold">اداروں کو شارٹ لسٹ کریں (ابھی)</h4>
+                                <p class="text-gray-600 mt-1">اس گائیڈ کی بنیاد پر 5-7 پسندیدہ نجی کالجوں کی فہرست بنائیں۔ یہ فہرست ساکھ، مقام اور بجٹ پر مبنی ہونی چاہیے۔</p>
+                            </div>
+                        </div>
+                         <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#5E7C7B] text-white rounded-full font-bold text-xl">2</div>
+                            <div class="mr-4">
+                                <h4 class="text-xl font-bold">براہ راست رابطہ اور تصدیق (اسی ہفتے)</h4>
+                                <p class="text-gray-600 mt-1">شارٹ لسٹ کیے گئے کالجوں کے داخلہ دفاتر کو فون کریں اور 2025-26 سیشن کے لیے داخلے کی آخری تاریخ، فیس کا ڈھانچہ، اور درخواست کے عمل کی تصدیق کریں۔</p>
+                            </div>
+                        </div>
+                         <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#5E7C7B] text-white rounded-full font-bold text-xl">3</div>
+                            <div class="mr-4">
+                                <h4 class="text-xl font-bold">دستاویزات تیار کریں (اسی ہفتے)</h4>
+                                <p class="text-gray-600 mt-1">میٹرک اور FSc سرٹیفکیٹ، ڈومیسائل، CNIC (طالب علم اور والد کا)، اور پاسپورٹ سائز تصاویر کی تصدیق شدہ کاپیاں جمع کریں۔</p>
+                            </div>
+                        </div>
+                         <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#5E7C7B] text-white rounded-full font-bold text-xl">4</div>
+                            <div class="mr-4">
+                                <h4 class="text-xl font-bold">کئی اداروں میں درخواست دیں</h4>
+                                <p class="text-gray-600 mt-1">داخلے کے امکانات کو بڑھانے کے لیے کم از کم 3-5 کالجوں میں درخواست دیں۔ صرف ایک پر انحصار نہ کریں۔</p>
+                            </div>
+                        </div>
+                         <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#5E7C7B] text-white rounded-full font-bold text-xl">5</div>
+                            <div class="mr-4">
+                                <h4 class="text-xl font-bold">پیشکشوں کا جائزہ لیں اور حتمی فیصلہ کریں</h4>
+                                <p class="text-gray-600 mt-1">داخلہ کی پیشکش ملنے پر، ان کا موازنہ کریں۔ اگر ممکن ہو تو، حتمی فیصلہ کرنے سے پہلے کیمپس کا دورہ کریں۔</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center">
+            <p class="urdu">یہ گائیڈ آپ کی رہنمائی کے لیے فراہم کی گئی ہے۔ تمام معلومات کی تصدیق متعلقہ اداروں سے کریں۔</p>
+            <p class="text-sm mt-2">&copy; 2025 Nursing Admission Guide. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const governmentCollegesData = [
+                { name: 'Nishtar Hospital, Multan', merit: 92.75 },
+                { name: 'KEMU, Mayo Hospital, Lahore', merit: 92.54 },
+                { name: 'Bahawalpur Victoria Hospital', merit: 91.25 },
+                { name: 'Lodhran', merit: 90.90 },
+                { name: 'Vehari', merit: 90.81 },
+                { name: 'Khanewal', merit: 90.41 },
+                { name: 'AIMC Jinnah Hospital, Lahore', merit: 90.33 },
+                { name: 'Muzaffargarh', merit: 90.27 },
+                { name: 'Layyah', merit: 90.27 },
+                { name: '(FJMU) Sir Ganga Ram Hospital, Lahore', merit: 90.58 },
+                { name: 'Sheikh Zayed Hospital, RYK', merit: 89.91 },
+                { name: 'Chakwal', merit: 89.72 },
+                { name: 'DG Khan', merit: 89.66 },
+                { name: 'Allied Hospital, Faisalabad', merit: 89.58 },
+                { name: 'Ameer-ud-Din General Hospital, Lahore', merit: 89.54 },
+                { name: 'Bahawalnagar', merit: 89.50 },
+                { name: 'Sahiwal', merit: 89.25 },
+                { name: 'Service Hospital, Lahore', merit: 89.09 },
+                { name: 'Children Hospital, Lahore', merit: 89.08 },
+                { name: 'Bhakkar', merit: 89.00 },
+                { name: 'DHQ Hospital, Faisalabad', merit: 89.00 },
+                { name: 'Rajanpur', merit: 88.90 },
+                { name: 'Holy Family Hospital, Rawalpindi', merit: 88.90 },
+                { name: 'Jhang', merit: 88.75 },
+                { name: 'Okara', merit: 88.72 },
+                { name: 'Benazir Bhutto Shaheed, Rawalpindi', merit: 88.58 },
+                { name: 'Sargodha', merit: 88.58 },
+                { name: 'Pakpattan', merit: 88.54 },
+                { name: 'Allama Iqbal Memorial, Sialkot', merit: 88.36 },
+                { name: 'Gujranwala', merit: 88.36 },
+                { name: 'Toba Tek Singh', merit: 88.33 },
+                { name: 'Narowal', merit: 88.27 },
+                { name: 'DHQ Hospital, Rawalpindi', merit: 88.27 },
+                { name: 'Gojra', merit: 88.09 },
+                { name: 'Sheikhupura', merit: 88.09 },
+                { name: 'Jhelum', merit: 88.08 },
+                { name: 'Kasur', merit: 88.00 },
+                { name: 'Mianwali', merit: 88.00 },
+                { name: 'Aziz Bhatti Shaheed, Gujarat', merit: 87.90 },
+                { name: 'Hafizabad', merit: 87.83 },
+                { name: 'Attock', merit: 87.81 },
+                { name: 'Khushab', merit: 87.75 },
+                { name: 'Mandi Bahauddin', merit: 87.66 },
+            ];
+
+            const privateCollegesData = [
+                { name: 'Rashid Latif Nursing College', city: 'Lahore', highlight: 'UHS سے الحاق، عارف میموریل ٹیچنگ ہسپتال سے منسلک', affiliation: 'UHS, Lahore', hospital: 'Arif Memorial Teaching Hospital & Hameed Latif Hospital' },
+                { name: 'Ittefaq Hospital (Trust) College of Nursing', city: 'Lahore', highlight: 'معروف ٹرسٹ ہسپتال سے منسلک', affiliation: 'UHS, Lahore', hospital: 'Ittefaq Hospital' },
+                { name: 'Shalamar Nursing College', city: 'Lahore', highlight: 'شالامار ہسپتال سے الحاق', affiliation: 'UHS, Lahore', hospital: 'Shalamar Hospital' },
+                { name: 'Central Park College of Nursing', city: 'Lahore', highlight: 'UHS سے الحاق شدہ', affiliation: 'UHS, Lahore', hospital: 'Central Park Teaching Hospital' },
+                { name: 'Bahria Town School of Nursing', city: 'Lahore', highlight: 'جدید بنیادی ڈھانچے کے ساتھ', affiliation: 'UHS, Lahore', hospital: 'Bahria International Hospital' },
+                { name: 'Gulab Devi Educational Complex', city: 'Lahore', highlight: 'مختلف ہیلتھ سائنس پروگرامز', affiliation: 'UHS, Lahore', hospital: 'Gulab Devi Chest Hospital' },
+                { name: 'Multan College of Nursing (MCN)', city: 'Multan', highlight: 'لڑکوں اور لڑکیوں دونوں کے لیے', affiliation: 'MMDC', hospital: 'Ibn-e-Sina Hospital' },
+                { name: 'Bakhtawar Amin Memorial Hospital', city: 'Multan', highlight: 'بڑے ٹیچنگ ہسپتال سے منسلک', affiliation: 'UHS, Lahore', hospital: 'Bakhtawar Amin Memorial Trust Hospital' },
+                { name: 'New Life Institute of Nursing (NLIN)', city: 'Multan', highlight: 'UHS سے الحاق شدہ', affiliation: 'UHS, Lahore', hospital: 'City Hospital, Khurshed Rafiq Hospital' },
+                { name: 'CMH Multan Institute of Medical Sciences (CIMS)', city: 'Multan', highlight: 'فوجی معیار کا نظم و ضبط', affiliation: 'NUMS', hospital: 'CMH Multan' },
+                { name: 'The Next College of Nursing', city: 'Multan', highlight: 'ابھرتا ہوا نام', affiliation: 'UHS, Lahore', hospital: 'Affiliated Hospitals' },
+                { name: 'Rawal College of Nursing', city: 'Rawalpindi/Islamabad', highlight: 'اچھی شہرت کا حامل', affiliation: 'Shaheed Zulfiqar Ali Bhutto Medical University', hospital: 'Rawal General and Dental Hospital' },
+                { name: 'HBS College of Nursing', city: 'Rawalpindi/Islamabad', highlight: 'اسلام آباد میں واقع', affiliation: 'SZABMU', hospital: 'HBS General Hospital' },
+                { name: 'Foundation University College of Nursing', city: 'Rawalpindi/Islamabad', highlight: 'مضبوط تعلیمی پروگرام', affiliation: 'Foundation University', hospital: 'Fauji Foundation Hospital' },
+                { name: 'Shifa College of Nursing', city: 'Rawalpindi/Islamabad', highlight: 'ملک کے بہترین اداروں میں سے ایک', affiliation: 'Shifa Tameer-e-Millat University', hospital: 'Shifa International Hospital' },
+                { name: 'Aziz Fatima (T) Hospital', city: 'Others', highlight: 'فیصل آباد میں واقع', affiliation: 'UHS, Lahore', hospital: 'Aziz Fatima Hospital, Faisalabad' },
+                { name: 'Imran Idress College of Nursing', city: 'Others', highlight: 'سیالکوٹ میں واقع', affiliation: 'UHS, Lahore', hospital: 'Imran Idrees Teaching Hospital, Sialkot' },
+                { name: 'Gujarat College of Nursing', city: 'Others', highlight: 'گجرات میں واقع', affiliation: 'University of Gujrat', hospital: 'Affiliated Hospitals' },
+            ];
+            
+            const feesData = [
+                { name: 'Gulab Devi Educational Complex, Lahore', fee: '220,000' },
+                { name: 'Multan College of Nursing, Multan', fee: '280,000' },
+                { name: 'South Punjab Institute, Multan', fee: '345,000' },
+                { name: 'Allied College of Health Sciences, Lahore', fee: '211,750' }
+            ];
+
+            const studentScore = 83.5;
+
+            const ctx = document.getElementById('meritChart').getContext('2d');
+            const meritChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: governmentCollegesData.map(c => c.name.split(',')[0]),
+                    datasets: [{
+                        label: '2024 Closing Merit (%)',
+                        data: governmentCollegesData.map(c => c.merit),
+                        backgroundColor: '#5E7C7B',
+                        borderColor: '#4A6261',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Merit Percentage (%)'
+                            }
+                        },
+                        y: {
+                           ticks: {
+                                autoSkip: false,
+                                font: {
+                                    size: 10
+                                }
+                           }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = governmentCollegesData[context.dataIndex].name || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    xMin: studentScore,
+                                    xMax: studentScore,
+                                    borderColor: '#D18C7A',
+                                    borderWidth: 3,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        content: `Aapka Score: ${studentScore}%`,
+                                        enabled: true,
+                                        position: 'start',
+                                        backgroundColor: '#D18C7A',
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const collegeGrid = document.getElementById('college-grid');
+            const cityFilters = document.getElementById('city-filters');
+
+            function renderColleges(filterCity = 'all') {
+                collegeGrid.innerHTML = '';
+                const filteredData = filterCity === 'all' 
+                    ? privateCollegesData 
+                    : privateCollegesData.filter(c => c.city === filterCity);
+
+                filteredData.forEach(college => {
+                    const card = document.createElement('div');
+                    card.className = 'college-card bg-gray-50 p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 urdu';
+                    card.setAttribute('data-city', college.city);
+                    card.innerHTML = `
+                        <h4 class="text-xl font-bold text-[#5E7C7B]">${college.name}</h4>
+                        <p class="text-gray-500 text-sm mb-3">${college.city === 'Others' ? college.highlight : college.city}</p>
+                        <p class="text-gray-700 mb-4">${college.highlight}</p>
+                        <div class="text-sm border-t pt-3">
+                            <p><strong>الحاق:</strong> ${college.affiliation}</p>
+                            <p><strong>منسلک ہسپتال:</strong> ${college.hospital}</p>
+                        </div>
+                    `;
+                    collegeGrid.appendChild(card);
+                });
+            }
+
+            cityFilters.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+                    e.target.classList.add('active-filter');
+                    renderColleges(e.target.dataset.city);
+                }
+            });
+            
+            const feesTable = document.getElementById('fees-table');
+            feesData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg border-r-4 border-gray-200';
+                row.innerHTML = `
+                    <span class="font-semibold">${item.name}</span>
+                    <span class="font-bold text-[#5E7C7B]">PKR ${new Intl.NumberFormat().format(item.fee)}</span>
+                `;
+                feesTable.appendChild(row);
+            });
+
+            renderColleges();
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
